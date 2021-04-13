@@ -1,16 +1,14 @@
 # Hangman-game-with-Threading
-It uses TCP connection to establish a connection then proceeds with UDP. It can support multiple Clients at the same time
+It uses TCP connection to establish a connection.
 
-To play the game run the Server and several Clients and play separately with each one.
+To play the game run runGame.py file
 
 ServerTCP-UDP.py<br/>
       1. Server receives a command ‘-r’ to pick a word randomly or a custom string to be used<br/>
       throughout the program<br/>
       2. It creates a TCP socket and listens connections from clients<br/>
       3. Receives a ‘name’ from a user and sends back ‘Hello .{}’.format(name)<br/>
-      4. Creates a UDP Socket with random port number(which it saves into a list to prevent collision)<br/> 
-      and sends its port number to the client to start a game<br/>
-      5. Reads from a words.txt and creates a list of words called ‘words’(One can modify it by<br/> 
+      4. Reads from a encryptedWords.txt and creates a list of words called ‘words’(One can modify it by<br/> 
       not doing this step if the custom string is provided)<br/>
       6. Receives a start or exit message in a loop from a client, from which a client can enter<br/>
       ‘exit’ to exit<br/>
@@ -33,10 +31,8 @@ ClientTCP-UDP.py<br/>
       1. Receives name of the server host and its port number<br/>
       2. Creates a TCP socket and connects<br/>
       3. Sends a name to Server and receives back hello+name<br/>
-      4. Receives UDP port number from server<br/>
-      5. Creates its own UDP port number and interacts with the server<br/>
       6. It has two loops to interact with the server first loop to start or exit(in which it receives<br/>
       instructions) and the second loop for playing the game by guessing letters of a word that<br/>
       is provided.<br/>
-      7. In the game you can enter guess<sp><char> -> to guess a letter, guess<sp><string> -> <br/>
-      to guess an entire word, end -> to end this game<br/>
+      7. In the game you can enter <char> -> to guess a letter, <string> ->  <br/>
+      to guess an entire word, or click the 'quit' button -> to end this game<br/>
