@@ -1,15 +1,9 @@
 from socket import *
-import random
 import threading
 from tkinter import *
 from tkinter.constants import LEFT, TOP, BOTTOM, BOTH,RIGHT, X, Y
-import tkinter.messagebox
-from tkinter import font
-from PIL import ImageTk,Image
 from time import sleep
 import sys
-
-
 
 FORMAT = "utf-8"
 PORT = 5000
@@ -114,21 +108,18 @@ class TCPGUI:
         self.go.place(relx = 0.4,
                       rely = 0.55)
 
-        #Sydney ADDED_______________________
         self.inputValue = StringVar()
         self.serverText = StringVar()
         self.serverguessed = StringVar()
         self.displaySentence = StringVar()
         self.count = StringVar()
-        self.inputValue.trace('w', self.limitLetter) #sydney
+        self.inputValue.trace('w', self.limitLetter) 
         #________________________________________
         self.Window.mainloop()
 
     def goAhead(self, name):
         self.login.destroy()
         self.layout(name)
-        #CODE GOES HERE SYDNEY!!!!!!!!!
-        #MAYBE
         # the thread to receive messages
         rcv = threading.Thread(target=self.receive)
         rcv.start()
@@ -174,7 +165,6 @@ class TCPGUI:
         self.textCons.place(relheight = 0.15,
                             relwidth = 1)
 
-    #SYDNEY________________________________________________
         self.guessedLetters = Label(self.Window,
                         width = 5,
                         height = 3,
@@ -184,7 +174,7 @@ class TCPGUI:
                         padx = 5,
                         pady = 5, textvariable=self.serverguessed, anchor="nw", justify=LEFT, wraplength=180)
 
-        self.guessedLetters.place(relheight = 0.20, #SYDNEY,
+        self.guessedLetters.place(relheight = 0.20,
                         relwidth = 0.40,
                         rely = 0.25, relx = 0.55)
 
@@ -205,7 +195,7 @@ class TCPGUI:
                         padx = 5,
                         pady = 5, textvariable=self.displaySentence)
 
-        self.display.place(relheight = 0.09, #SYDNEY,
+        self.display.place(relheight = 0.09,
                         relwidth = 1,
                         rely = 0.75, relx = 0)
     #___________________________________
@@ -243,7 +233,7 @@ class TCPGUI:
                              rely = 0.008,
                              relheight = 0.06, 
                              relwidth = 0.22)
-        #SYDNEY_________________________________________________________
+        #________________________________________________________
         self.guessPhrase = Entry(self.labelBottom,
                                 bg = "#2C3E50",
                                 fg = "#EAECEE",

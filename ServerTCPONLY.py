@@ -1,8 +1,6 @@
 from socket import *
 import random
-#import _thread
 import threading
-import asyncio
 import sys
 from time import *
 from Cryptodome.PublicKey import RSA
@@ -42,16 +40,11 @@ def new_client(c, addr, command, full):
     words = []
     display = []
     count = 4
-    # grabWords = (decryptData(open("answer.txt", "r").read()))   # reads from the file, decrypts and makes a list of words
+    # reads from the file, decrypts and makes a list of words
     for line in decryptData(open("encryptedWords.txt", "r").read()).splitlines():
         line = line.strip()
         words.append(line)
-    # with open("encryptedWords.txt", 'r') as file:                            # reads from the file and makes a list of words
-    #     for line in file:
-    #         line = line.strip()
-    #         words.append(line)
 
-    #c.send(inst.encode(FORMAT))
     random.shuffle(words)                                       # shuffle the list and take the first
 
     if command == '-r':
@@ -67,8 +60,6 @@ def new_client(c, addr, command, full):
     # print(str(display) + str((len(word)+1) - count))
     c.send((str(display)).encode(FORMAT))           # 3 send display
     c.send((str((len(word)+1) - count)).encode(FORMAT))   # sendcount
-    #ONE MASSIVE SEND:
-    #c.send()
 
     while True:
 
@@ -79,13 +70,9 @@ def new_client(c, addr, command, full):
             char = char.lower()
             count += 1 #guesses increase
             if char == 'exit':
-                #c.send(str((len(word)+1) - count).encode(FORMAT))
-                #c.send(("You LOST! The word was " + str(word)).encode(FORMAT))
-                c.send(("You LOST! Better Luck Next Time!").encode(FORMAT))
+                c.send(("GOODBYE!").encode(FORMAT))
                 break
             elif len(char) > 1:   # it means you are trying to guess the entire word
-                #o = char[6:]
-                #print(o)
                 if fun(word, char):
                     c.send(str((len(word)+1) - count).encode(FORMAT))
                     c.send(("You got it!!! Bulls eye! The word was " + str(char)).encode(FORMAT))
@@ -93,14 +80,11 @@ def new_client(c, addr, command, full):
                     break
                 else:
                     c.send(str((len(word)+1) - count).encode(FORMAT))
-                    #c.send(("You LOST! The word was " + str(word)).encode(FORMAT))
                     c.send(("You LOST! Better Luck Next Time!").encode(FORMAT))
                     break
             elif len(char) == 1: #guessed a letter
                 display = list(display)
                 guessedLetters.add(char)
-                #r = char[len(char) - 1]
-                #print("R: " + char)
                 for i in range(len(word)):
                     if word[i] == char:
                         display[i] = char
@@ -112,32 +96,23 @@ def new_client(c, addr, command, full):
                     c.send(("You got it!!! Bulls eye!" + str(display)).encode(FORMAT))
                     break
                 else:
-                    # print(str((len(word)+1) - count))
                     # c.send(str((len(word)+1) - count).encode(FORMAT))    # 5 send count
                     #print('Sending display ', display)
                     c.send((str(display) + str((len(word)+1) - count)).encode(FORMAT))                 # 6 send the word
                 #guessedLetters = list(guessedLetters)
                 c.send(("Guessed: " + str(guessedLetters)).encode(FORMAT))
-               # print("GUESSED: " + guessedLetters)
-            # elif(char == "exit"):
-            #     print("HEHRHERHE")
-            #     break
+
             char= c.recv(1024).decode(FORMAT)                                         # 7 Receive char again
-        #print("OUT OF LOOP")
-        #print(count)
+
         if(char == "exit"):
             c.send("CLOSE".encode(FORMAT))              # 10 send end message
             break
         elif display != word and count >= len(word)+1 and full == False:
-            c.send(str((len(word)+1) - count).encode(FORMAT))
-           # c.send(("You LOST! The word was " + str(word)).encode(FORMAT))
+            #c.send(str((len(word)+1) - count).encode(FORMAT))
             c.send(("You LOST! Better Luck Next Time!").encode(FORMAT))
-            #print("LOSEEEEEEERRR")
             c.send("CLOSE".encode(FORMAT))
             # sleep(3)
             break
-    #print("Closing UDP and TCP sockets...")
-                  # 10 send end message
     c.close()
     stop_server = True
 
@@ -158,7 +133,6 @@ def Server(command):
         names.append(name)
         clients.append(con)
 
-        #print("User's name is: ", name)
 
         r = "Hello, " + name
         con.send(r.encode(FORMAT))                     # accept
@@ -167,7 +141,6 @@ def Server(command):
         thread.start()     # start a new thread
         if stop_server:
             sys.exit(0)
-        #print(f"active connections {threading.activeCount()-1}")
 
     #con.close()                                                           # Close the TCP connection
 
