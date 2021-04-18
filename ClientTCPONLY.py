@@ -19,17 +19,17 @@ try:
 except error:
     print("Caught exception error, cannot connect")
 
-images5 = ["1.gif", "2.gif", "3.gif", "4.gif", "5.gif", "6.gif"]
+images5 = ["./images/1.gif", "./images/2.gif", "./images/3.gif", "./images/4.gif", "./images/5.gif", "./images/6.gif"]
 images6 = list(images5)
-images6.append("7.gif")
+images6.append("./images/7.gif")
 images7= list(images6)
-images7.append("8.gif")
+images7.append("./images/8.gif")
 images8= list(images7)
-images8.append("9.gif")
+images8.append("./images/9.gif")
 images9= list(images7)
-images9.append("10.gif")
+images9.append("./images/10.gif")
 images10= list(images7)
-images10.append("11.gif")
+images10.append("./images/11.gif")
 
 class TCPGUI:
     def __init__(self):
@@ -48,6 +48,8 @@ class TCPGUI:
                              height = False)
         self.login.configure(width = 400,
                              height = 300)
+        self.inputName = StringVar()
+        self.inputName.trace('w', self.limitLength) 
 
         # Login to continue text
         self.pls = Label(self.login, 
@@ -71,7 +73,7 @@ class TCPGUI:
         # create a entry box for 
         # tyoing the message
         self.entryName = Entry(self.login, 
-                             font = "Helvetica 14")
+                             font = "Helvetica 14", textvariable=self.inputName)
 
         self.entryName.place(relwidth = 0.4, 
                              relheight = 0.12,
@@ -128,6 +130,10 @@ class TCPGUI:
         value = self.inputValue.get()
         if len(value) > 1: self.inputValue.set(value[:1])
 
+    def limitLength(self, *args):
+        value = self.inputName.get()
+        if len(value) > 15: self.inputName.set(value[:15])
+
     def layout(self,name):
         self.name = name
         self.currentImages = []
@@ -144,7 +150,7 @@ class TCPGUI:
                               height = 550,
                               bg = "#FFFFFF")
 
-        self.img = PhotoImage(file="gallows.gif") 
+        self.img = PhotoImage(file="./images/gallows.gif") 
         self.panel = Label(self.Window, image=self.img, width = 200, bg = "#FFFFFF",
                              height = 250,)
         self.panel.pack(side="bottom", fill="both", expand="yes")
@@ -315,7 +321,7 @@ class TCPGUI:
                 #s.close()
                 #break
         if self.client_close:
-            sleep(3)
+            sleep(2.5)
             self.Window.destroy()
             sys.exit(0)
     def messageParse(self, message):
