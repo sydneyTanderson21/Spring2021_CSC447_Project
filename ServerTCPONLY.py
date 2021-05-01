@@ -16,7 +16,7 @@ ADDRESS = (SERVER, PORT)
 stop_server = False
 
 # Lists that will contains
-# all the clients connected to 
+# all the clients connected to
 # the server and their names.
 clients, names = [], []
 
@@ -27,15 +27,7 @@ s = socket(AF_INET, SOCK_STREAM)
 s.bind(ADDRESS)
 
 def new_client(c, addr, command, full):
-    # inst = "This is hangman You will guess one letter at a time. If the letter is in the hidden word the '-' will be\n" \
-    #        "replaced by the correct letter Guessing multiple letters at a time will be considered as guessing the entire\n" \
-    #        "word (which will result in either a win or loss automatically - win if correct, loss if incorrect).You win\n" \
-    #        "if you either guess all of the correct letters or guess the word correctly. You lose if you run out of\n" \
-    #        "attempts. Attempts will be decremented in the case of an incorrect or repeated letter guess.\n" \
-    #        "Enter 'Start' or 'Exit' when you're asked 'Are you Ready?' " \
-    #        "In the game you must enter 'guess <char>' to guess or 'end' to end the game\n"
 
-    inst = "This is hangman You will guess one letter at a time. if you either guess all of the correct letters or guess the word correctly."
     guessedLetters = set()
     words = []
     display = []
@@ -64,15 +56,22 @@ def new_client(c, addr, command, full):
     while True:
 
         char = c.recv(1024).decode(FORMAT)                                          # char is either a letter or a word or the full phrase
-
         while True and count < len(word)+1 and char and char != "": #logic makes sense, count = # of guesses
             #print("Received: " + char)
             char = char.lower()
             count += 1 #guesses increase
+
             if char == 'exit':
                 c.send(("GOODBYE!").encode(FORMAT))
                 break
+            elif(char == 'lose'):
+                count += 1
+                c.send(str((len(word)+1) - count).encode(FORMAT))
+            elif(char == 'win'):
+                count -= 1
+                c.send(str((len(word)+1) - count).encode(FORMAT))
             elif len(char) > 1:   # it means you are trying to guess the entire word
+                # print(char)
                 if fun(word, char):
                     c.send(str((len(word)+1) - count).encode(FORMAT))
                     c.send(("You got it!!! Bulls eye! The word was " + str(char)).encode(FORMAT))
