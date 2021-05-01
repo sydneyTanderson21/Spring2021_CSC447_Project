@@ -1,9 +1,11 @@
 from socket import *
 import threading
 from tkinter import *
+import tkinter
 from tkinter.constants import LEFT, TOP, BOTTOM, BOTH,RIGHT, X, Y
 from time import sleep
 import sys
+import random
 
 FORMAT = "utf-8"
 PORT = 5000
@@ -31,16 +33,47 @@ images9.append("./images/10.gif")
 images10= list(images7)
 images10.append("./images/11.gif")
 
+#Hand images :
+rockHandPhoto = "./images/Rock_1.gif"
+paperHandPhoto = "./images/Paper_1.gif"
+scissorHandPhoto = "./images/Scissor_1.gif"
+
+
+#Decision image :
+decisionPhoto = "./images/Decision_Final.gif"
+
+#Result images :
+winPhoto = "./images/G_WIN.gif"
+losePhoto = "./images/G_LOST.gif"
+tiePhoto = "./images/G_DRAW.gif"
+
+rockHandButton = " "
+paperHandButton = " "
+scissorHandButton = " "
+computerName = " "
+playerName = " "
+click = True
+
 class TCPGUI:
     def __init__(self):
         # HANGMAN window which is currently hidden
         self.client_close = False
         self.initial = True
+        self.played = False
         self.Window = Tk()
         self.Window.withdraw()
 
         # login window
         self.login = Toplevel()
+        # self.root = Toplevel()
+
+        #rockpaperscissor
+        self.gameWon = 0  #default is false
+        # self.rockHandButton = " "
+        # self.paperHandButton = " "
+        # self.scissorHandButton = " "
+        # self.computerName = " "
+        # self.playerName = " "
 
         # set the title
         self.login.title("LOGIN")
@@ -82,26 +115,7 @@ class TCPGUI:
 
         # set the focus of the curser
         self.entryName.focus()
-#__________________________________________________________________________________
-        # field for password
-        # self.passName = Label(self.login,
-        #                     text = "Password: ",
-        #                     font = "Helvetica 12")
 
-        # self.passName.place(relheight = 0.2,
-        #                     relx = 0.1,
-        #                     rely = 0.35)
-
-        # self.entryPass = Entry(self.login,
-        #                     font = "Helvetica 14", show="*")
-
-        # self.entryPass.place(relwidth = 0.4,
-        #                     relheight = 0.12,
-        #                     relx = 0.35,
-        #                     rely = 0.4)
-
-        # create a Continue Button 
-        # along with action
         self.go = Button(self.login,
                          text = "Start", 
                          font = "Helvetica 14 bold", 
@@ -115,7 +129,9 @@ class TCPGUI:
         self.serverguessed = StringVar()
         self.displaySentence = StringVar()
         self.count = StringVar()
-        self.inputValue.trace('w', self.limitLetter) 
+        self.inputValue.trace('w', self.limitLetter)
+        self.computerText = StringVar()
+        self.playerText = StringVar()
         #________________________________________
         self.Window.mainloop()
 
@@ -184,6 +200,14 @@ class TCPGUI:
                         relwidth = 0.40,
                         rely = 0.25, relx = 0.55)
 
+        self.rockPS = Button(self.Window,
+                         text = "Wanna play a game?", 
+                         font = "Helvetica 10 bold",
+                         command = lambda: self.rockpaperscissor())
+
+        self.rockPS.place(relx = 0.55,
+                      rely = 0.55)
+        self.rockPS.configure(state='disabled')
         self.guessCountField = Label(self.Window, height=1, width=2, bg = "#FFFFFF",
                              font = "Helvetica 9", textvariable=self.count)
 
@@ -349,6 +373,13 @@ class TCPGUI:
         self.guessPhrase.configure(state='disabled')
         self.phraseBTN.configure(state='disabled')
         self.buttonMsg.configure(state='disabled')
+        self.rockPS.configure(state='disabled')
+
+    def enableBTNs(self):
+        self.entryMsg.configure(state='normal')
+        self.guessPhrase.configure(state='normal')
+        self.phraseBTN.configure(state='normal')
+        self.buttonMsg.configure(state='normal')
 
     def updateCount(self, num):
         if self.initial:
@@ -357,17 +388,144 @@ class TCPGUI:
             self.numCount = num
             self.initial = False
         elif(self.numCount != num): #which means that you did NOT GUESS it correct
-                    getimg = self.currentImages[0]
-                    img2 = PhotoImage(file=getimg)
-                    self.panel.configure(image=img2)
-                    self.panel.image = img2
-                    self.currentImages.pop(0)
-                    self.serverText.set("Nope, Guess again!")
+            getimg = self.currentImages[0]
+            img2 = PhotoImage(file=getimg)
+            self.panel.configure(image=img2)
+            self.panel.image = img2
+            self.currentImages.pop(0)
+            self.serverText.set("Nope, Guess again!")
         else: #guessed correctly
             self.serverText.set("Nice! Keep Guessin'")
 
+        if(int(self.numCount) <= 5 and self.played == False):
+             self.rockPS.configure(state='normal')
+             self.played = True
+
         self.count.set("Guesses Left: " + num)
         self.numCount = num
+
+    def rockpaperscissor(self):
+        self.root = tkinter.Toplevel(self.Window)
+        self.root.configure(bg="#000000")
+        self.root.geometry('+0+0')
+        # self.root.iconbitmap("Game.ico")
+        self.root.title("Rock-Paper-Scissor")
+        self.root.resizable(width=False,height=False)
+        self.disableBTNs()
+
+        self.rpsImagesDict = {"Rock": PhotoImage(file=rockHandPhoto), "Paper": PhotoImage(file=paperHandPhoto), "Scissor": PhotoImage(file=scissorHandPhoto),
+        "RockRock": [PhotoImage(file=tiePhoto), "again"],
+        "RockPaper": [PhotoImage(file=losePhoto), "lose"],
+        "RockScissor": [PhotoImage(file=winPhoto), "win"],
+        "PaperRock": [PhotoImage(file=winPhoto), "win"],
+        "PaperPaper": [PhotoImage(file=tiePhoto), "again"],
+        "PaperScissor": [PhotoImage(file=losePhoto), "lose"],
+        "ScissorRock": [PhotoImage(file=losePhoto), "lose"],
+        "ScissorPaper": [PhotoImage(file=winPhoto), "win"],
+        "ScissorScissor": [PhotoImage(file=tiePhoto), "again"]}
+
+        self.decision = PhotoImage(file=decisionPhoto)
+        self.resultButton = Label(self.root,image=self.decision)
+
+        # self.resultButton.configure
+        self.click = True
+        self.computerText.set("")
+        self.playerText.set("Choose: ")
+
+        global rockHandButton,paperHandButton,scissorHandButton, playerName, computerName
+
+        #Set images and commands for buttons :
+        rockHandButton = Button(self.root,image = self.rpsImagesDict["Rock"], command=lambda:self.youPick("Rock"))
+        paperHandButton = Button(self.root,image = self.rpsImagesDict["Paper"], command=lambda:self.youPick("Paper"))
+        scissorHandButton = Button(self.root,image = self.rpsImagesDict["Scissor"], command=lambda:self.youPick("Scissor"))
+
+        playerName = Label(self.root, textvariable=self.playerText , font = "Helvetica 12", bg="#000000", fg="#FFFFFF")
+        playerName.grid(row=0, column=0)
+
+        computerName = Label(self.root, textvariable=self.computerText, font = "Helvetica 12", bg="#000000", fg="#FFFFFF")
+        computerName.grid(row=0, column=1)
+        #Place the buttons on window :
+        rockHandButton.grid(row=1,column=0)
+        paperHandButton.grid(row=1,column=1)
+        scissorHandButton.grid(row=1,column=2)
+
+        #Add space :
+        self.root.grid_rowconfigure(2, minsize=50)
+
+        #Place result button on window :
+        self.resultButton.grid(row=3,column=0,columnspan=5) 
+        self.draw = Button(self.root,
+                         text = "Play Again", state="disabled",
+                         font = "Helvetica 13 bold", command = lambda: self.resetGame())
+
+        self.draw.place(relx = 0.55,
+                      rely = 0.48)
+
+        self.winLose = Button(self.root,
+                         text = "Move On", state="disabled",
+                         font = "Helvetica 13 bold", command = lambda: self.winlostGame())
+
+        self.winLose.place(relx = 0.20,
+                    rely = 0.48)
+
+
+    def computerPick(self):
+        choice = random.choice(["Rock","Paper","Scissor"])
+        return choice
+
+    def handleCompPick(self, playerPick, compPick):
+            paperHandButton.configure(image=self.rpsImagesDict[compPick])
+            self.gameWon = self.rpsImagesDict[playerPick+compPick][1]
+            self.resultButton.configure(image=self.rpsImagesDict[playerPick+compPick][0])
+            scissorHandButton.grid_forget()
+
+    def youPick(self, yourChoice):
+        global click
+
+        compPick = self.computerPick()
+        self.playerText.set("Player Choice:")
+        self.computerText.set("Computer Choice:")
+
+        if click==True:
+
+            if yourChoice == "Rock":
+                rockHandButton.configure(image=self.rpsImagesDict[yourChoice])
+                self.handleCompPick(yourChoice, compPick)
+                click=False
+
+            elif yourChoice == "Paper":
+                rockHandButton.configure(image=self.rpsImagesDict[yourChoice])
+                self.handleCompPick(yourChoice, compPick)
+                click=False
+
+            elif yourChoice=="Scissor":
+                rockHandButton.configure(image=self.rpsImagesDict[yourChoice])
+                self.handleCompPick(yourChoice, compPick)
+                click=False
+
+        if(self.gameWon == "again"):
+            self.draw.configure(state='normal')
+            click=True
+
+        elif(self.gameWon == "win" or self.gameWon == "lose"):
+            self.winLose.configure(state='normal')
+
+    def resetGame(self):
+        rockHandButton.configure(image=self.rpsImagesDict["Rock"])
+        paperHandButton.configure(image=self.rpsImagesDict["Paper"])
+        scissorHandButton.configure(image=self.rpsImagesDict["Scissor"])
+        self.resultButton.configure(image=self.decision)
+
+        #Get back the deleted buttons :
+        scissorHandButton.grid(row=1,column=2)
+        self.draw.configure(state='disabled')
+        self.computerText.set("")
+
+    def winlostGame(self):
+        self.enableBTNs()
+        self.sendButton(self.gameWon)
+        self.root.destroy()
+
 
 g = TCPGUI()
 
